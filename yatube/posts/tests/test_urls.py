@@ -74,5 +74,5 @@ class PostsURLTests(TestCase):
         to /posts/1/."""
         self.authorized_client = Client()
         self.authorized_client.force_login(PostsURLTests.user_alex)
-        response = self.authorized_client.get('/posts/1/edit/', follow=True)
+        response = self.authorized_client.get('/posts/1/edit/')
         self.assertRedirects(response, '/posts/1/')

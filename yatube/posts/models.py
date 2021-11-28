@@ -10,12 +10,12 @@ class Group(models.Model):
     slug = models.SlugField('group name', unique=True)
     description = models.TextField('description')
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         verbose_name = 'community'
         db_table = 'community of Tolstoy lovers'
+
+    def __str__(self):
+        return self.title
 
 
 class Post(models.Model):
@@ -37,10 +37,10 @@ class Post(models.Model):
         verbose_name='author',
         related_name='author_posts')
 
-    def __str__(self):
-        return self.text[:15]
-
     class Meta:
         ordering = ('-pub_date',)
         verbose_name = 'notes of famous people'
         db_table = 'all post'
+
+    def __str__(self):
+        return self.text[:15]

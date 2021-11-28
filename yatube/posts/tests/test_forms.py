@@ -1,10 +1,7 @@
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from ..models import Group, Post
-
-User = get_user_model()
+from ..models import Group, Post, User
 
 
 class PostCreateFormTests(TestCase):
@@ -32,7 +29,7 @@ class PostCreateFormTests(TestCase):
 
     def setUp(self):
         self.authorized_client = Client()
-        self.authorized_client.force_login(PostCreateFormTests.user)
+        self.authorized_client.force_login(self.__class__.user)
 
     def test_create_post(self):
         """Check a new record is created in Post."""
@@ -48,7 +45,7 @@ class PostCreateFormTests(TestCase):
             follow=True
         )
         self.assertRedirects(response, reverse('posts:profile',
-                                               kwargs={'username': 'userman'}))
+                                               kwargs={'username': self.user}))
         self.assertEqual(Post.objects.count(), posts_count + 1)
 
     def test_edit_post(self):
@@ -58,14 +55,15 @@ class PostCreateFormTests(TestCase):
             'text': 'Редактированный тестовый текст',
         }
         response = self.authorized_client.post(
-            reverse('posts:post_edit', kwargs={'post_id': '1'}),
+            reverse('posts:post_edit', kwargs={'post_id': self.post.pk}),
             data=form_data,
             follow=True
         )
-        self.assertRedirects(response, reverse('posts:post_detail',
-                                               kwargs={'post_id': '1'}))
+        self.assertRedirects(response,
+                             reverse('posts:post_detail',
+                                     kwargs={'post_id': self.post.pk}))
         self.assertEqual(Post.objects.count(), posts_count)
         response = self.authorized_client.get(
-            reverse('posts:post_edit', kwargs={'post_id': '1'}))
+            reverse('posts:post_edit', kwargs={'post_id': self.post.pk}))
         self.assertEqual(response.context['post'].text,
                          'Редактированный тестовый текст')

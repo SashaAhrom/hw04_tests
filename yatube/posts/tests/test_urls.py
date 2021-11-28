@@ -1,11 +1,8 @@
 from http import HTTPStatus
 
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 
-from ..models import Group, Post
-
-User = get_user_model()
+from ..models import Group, Post, User
 
 
 class PostsURLTests(TestCase):
@@ -27,11 +24,11 @@ class PostsURLTests(TestCase):
     def setUp(self):
         self.guest_client = Client()
         self.authorized_client = Client()
-        self.authorized_client.force_login(PostsURLTests.user)
+        self.authorized_client.force_login(self.__class__.user)
 
     def test_page_not_exist(self):
         """This page does not exist."""
-        response = self.guest_client.get('/strege_page/')
+        response = self.guest_client.get('/strange_page/')
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND.value)
 
     def test_url_correct_template_status_code_unauthorized(self):
@@ -39,9 +36,9 @@ class PostsURLTests(TestCase):
         uses the appropriate template."""
         templates_url_names = {
             '/': 'posts/index.html',
-            '/group/something_slug/': 'posts/group_list.html',
-            '/profile/userman/': 'posts/profile.html',
-            '/posts/1/': 'posts/post_detail.html',
+            f'/group/{self.group.slug}/': 'posts/group_list.html',
+            f'/profile/{self.user}/': 'posts/profile.html',
+            f'/posts/{self.post.pk}/': 'posts/post_detail.html',
         }
         for url, template in templates_url_names.items():
             with self.subTest(url=url):
@@ -53,7 +50,7 @@ class PostsURLTests(TestCase):
         """Checking status_code and URL-the address
         uses the appropriate template."""
         templates_url_names = {
-            '/posts/1/edit/': 'posts/create_post.html',
+            f'/posts/{self.post.pk}/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
         }
         for url, template in templates_url_names.items():
@@ -70,9 +67,9 @@ class PostsURLTests(TestCase):
             response, '/auth/login/?next=/create/')
 
     def test_posts_edit_url_redirect_authorized(self):
-        """The page /posts/1/edit/ will redirect the authorized user
-        to /posts/1/."""
+        """The page /posts/<post_id>/edit/ will redirect the authorized user
+        to /posts/<post_id>/."""
         self.authorized_client = Client()
-        self.authorized_client.force_login(PostsURLTests.user_alex)
-        response = self.authorized_client.get('/posts/1/edit/')
-        self.assertRedirects(response, '/posts/1/')
+        self.authorized_client.force_login(self.__class__.user_alex)
+        response = self.authorized_client.get(f'/posts/{self.post.pk}/edit/')
+        self.assertRedirects(response, f'/posts/{self.post.pk}/')

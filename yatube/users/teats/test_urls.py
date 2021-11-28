@@ -1,11 +1,10 @@
 import base64
 from http import HTTPStatus
 
-from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.test import Client, TestCase
 
-User = get_user_model()
+from ..forms import User
 
 
 class UsersURLTests(TestCase):

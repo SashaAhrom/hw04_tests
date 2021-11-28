@@ -1,11 +1,8 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from ..models import Group, Post
-
-User = get_user_model()
+from ..models import Group, Post, User
 
 
 class PostsURLTests(TestCase):
@@ -34,19 +31,19 @@ class PostsURLTests(TestCase):
     def setUp(self):
         self.guest_client = Client()
         self.authorized_client = Client()
-        self.authorized_client.force_login(PostsURLTests.user)
+        self.authorized_client.force_login(self.__class__.user)
 
     def test_pages_uses_correct_namespase_name(self):
         """The template uses the correct namespase:name."""
         templates_page_names = {
             reverse('posts:index'): 'posts/index.html',
-            reverse('posts:group_list', kwargs={'slug': 'something_slug'}):
+            reverse('posts:group_list', kwargs={'slug': self.group.slug}):
                 'posts/group_list.html',
-            reverse('posts:profile', kwargs={'username': 'userman'}):
+            reverse('posts:profile', kwargs={'username': self.user}):
                 'posts/profile.html',
-            reverse('posts:post_detail', kwargs={'post_id': '1'}):
+            reverse('posts:post_detail', kwargs={'post_id': self.post.pk}):
                 'posts/post_detail.html',
-            reverse('posts:post_edit', kwargs={'post_id': '1'}):
+            reverse('posts:post_edit', kwargs={'post_id': self.post.pk}):
                 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
         }
@@ -59,9 +56,9 @@ class PostsURLTests(TestCase):
         """Check the paginator and correctly weld the context."""
         templates_page_names = {
             reverse('posts:index'): 'posts/index.html',
-            reverse('posts:group_list', kwargs={'slug': 'something_slug'}):
+            reverse('posts:group_list', kwargs={'slug': self.group.slug}):
                 'posts/group_list.html',
-            reverse('posts:profile', kwargs={'username': 'userman'}):
+            reverse('posts:profile', kwargs={'username': self.user}):
                 'posts/profile.html',
         }
         for reverse_name, template in templates_page_names.items():
@@ -72,9 +69,9 @@ class PostsURLTests(TestCase):
                 post_text_0 = first_object.text
                 post_author_0 = first_object.author.username
                 post_group_0 = first_object.group.title
-                self.assertEqual(post_text_0, 'Тестовая группа14')
-                self.assertEqual(post_author_0, 'userman')
-                self.assertEqual(post_group_0, 'Тестовая группа')
+                self.assertEqual(post_text_0, self.post.text)
+                self.assertEqual(post_author_0, self.post.author.username)
+                self.assertEqual(post_group_0, self.post.group.title)
             with self.subTest(template=template + '?page=2'):
                 response = self.authorized_client.get(reverse_name + '?page=2')
                 if template == 'posts/group_list.html':
@@ -85,7 +82,7 @@ class PostsURLTests(TestCase):
     def test_create_edit_pages_show_correct_context(self):
         """Check form fields."""
         templates_page_names = {
-            reverse('posts:post_edit', kwargs={'post_id': '1'}):
+            reverse('posts:post_edit', kwargs={'post_id': self.post.pk}):
                 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
         }
@@ -105,16 +102,17 @@ class PostsURLTests(TestCase):
         """The post_detail and post_edit templates
         are well-formed with the correct context."""
         templates_page_names = {
-            reverse('posts:post_detail', kwargs={'post_id': '1'}):
+            reverse('posts:post_detail', kwargs={'post_id': self.post.pk}):
                 'posts/post_detail.html',
-            reverse('posts:post_edit', kwargs={'post_id': '1'}):
+            reverse('posts:post_edit', kwargs={'post_id': self.post.pk}):
                 'posts/create_post.html',
         }
         for reverse_name, template in templates_page_names.items():
             with self.subTest(template=template):
                 response = self.authorized_client.get(reverse_name)
                 self.assertEqual(response.context['post'].
-                                 author.username, 'userman')
+                                 author.username, self.post.author.username)
                 self.assertEqual(response.context['post'].
-                                 text, 'Тестовая группа0')
-                self.assertEqual(response.context['post'].group, None)
+                                 text, self.post.text)
+                self.assertEqual(response.context['post'].group,
+                                 self.post.group)

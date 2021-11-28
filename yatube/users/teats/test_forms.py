@@ -1,8 +1,7 @@
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-User = get_user_model()
+from ..forms import User
 
 
 class UsersURLTests(TestCase):
@@ -11,7 +10,7 @@ class UsersURLTests(TestCase):
 
     def test_create_user_redirect(self):
         """Validation creates a new user when submitting 'users:signup'."""
-        posts_count = User.objects.count()
+        user_count = User.objects.count()
         form_data = {
             'first_name': 'Johannes',
             'last_name': 'Klaebo',
@@ -26,4 +25,4 @@ class UsersURLTests(TestCase):
             follow=True
         )
         self.assertRedirects(response, reverse('posts:index'))
-        self.assertEqual(User.objects.count(), posts_count + 1)
+        self.assertEqual(User.objects.count(), user_count + 1)

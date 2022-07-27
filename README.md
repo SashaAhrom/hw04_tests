@@ -1,3 +1,18 @@
-# hw04_tests
-
-[![CI](https://github.com/yandex-praktikum/hw04_tests/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw04_tests/actions/workflows/python-app.yml)
+# hw04_tests(educational project)
+## Description
+```
+- 
+```
+## Running a project in dev mode
+```
+- Install and activate the virtual environment
+- Install dependencies from requirements.txt file
+- pip install -r requirements.txt
+- In the folder with the manage.py, run the command:
+  python3 manage.py runserver
+```
+## System requirements
+```
+Python 3.7
+Django 2.2.19
+```

@@ -1,7 +1,10 @@
 # hw04_tests(educational project)
 ## Description
 ```
-- 
+- Added forms tests.
+- Added models tests.
+- Added urls tests.
+- Added views tests.
 ```
 ## Running a project in dev mode
 ```
